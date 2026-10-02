@@ -31,7 +31,8 @@ names between `apt`, `dnf`, `pacman` and `zypper` along the way.
 > - ✅ Dotfiles collector with security exclusions
 > - ✅ Package translator via `package-map.yaml`
 > - ✅ Native binary (GraalVM) + CI + automated releases
-> - ⏳ `restore` doesn't apply changes for real yet (plan/dry-run only)
+> - ✅ `restore` applies real changes (explicit confirmation + `--generate-script` review)
+> - ⏳ Dotfiles are tracked but not copied automatically yet (content, not just paths)
 
 ## Demo
 
@@ -101,8 +102,10 @@ to regenerate/adjust those files.
 ## Security
 
 - Never exports `~/.ssh`, `~/.gnupg`, tokens or credentials by default.
-- Never runs `sudo` behind your back.
-- `--dry-run` is always available before any change is made.
+- Never runs `sudo` behind your back: `restore` prints the exact command and asks you to type `yes`
+  before running it, and the package manager still asks its own native `[Y/n]` on top of that.
+- `--dry-run` is always available before any change is made, and `--generate-script` writes a reviewable
+  script instead of running anything.
 
 ## Related projects
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 public class ProfileReader {
 
@@ -15,6 +16,16 @@ public class ProfileReader {
     }
 
     public Profile read(Path input) throws IOException {
-        return mapper.readValue(input.toFile(), Profile.class);
+        Profile profile = mapper.readValue(input.toFile(), Profile.class);
+        return new Profile(
+                profile.source(),
+                orEmpty(profile.packages()),
+                orEmpty(profile.flatpaks()),
+                orEmpty(profile.dotfiles())
+        );
+    }
+
+    private List<String> orEmpty(List<String> values) {
+        return values == null ? List.of() : values;
     }
 }

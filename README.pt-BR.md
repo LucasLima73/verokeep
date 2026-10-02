@@ -31,7 +31,8 @@ manualmente, dotfiles, Flatpaks, repositórios — e o recria em outra, traduzin
 > - ✅ Collector de dotfiles com exclusão de segurança
 > - ✅ Translator de pacotes via `package-map.yaml`
 > - ✅ Binário nativo (GraalVM) + CI + release automatizado
-> - ⏳ `restore` ainda não aplica as mudanças de verdade (só mostra o plano)
+> - ✅ `restore` aplica mudanças de verdade (confirmação explícita + revisão via `--generate-script`)
+> - ⏳ Dotfiles são rastreados mas ainda não copiados automaticamente (conteúdo, não só os caminhos)
 
 ## Demo
 
@@ -100,8 +101,10 @@ do GraalVM para regenerar/ajustar esses arquivos.
 ## Segurança
 
 - Nunca exporta por padrão `~/.ssh`, `~/.gnupg`, tokens ou credenciais.
-- Nunca executa `sudo` de forma escondida.
-- `--dry-run` é sempre possível antes de qualquer alteração.
+- Nunca executa `sudo` de forma escondida: o `restore` mostra o comando exato e pede pra você digitar
+  `yes` antes de rodar, e o gerenciador de pacotes ainda pergunta `[Y/n]` nativamente por cima disso.
+- `--dry-run` é sempre possível antes de qualquer alteração, e `--generate-script` gera um script pra
+  revisão em vez de executar qualquer coisa.
 
 ## Projetos relacionados
 

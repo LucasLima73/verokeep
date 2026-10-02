@@ -32,6 +32,26 @@ public class CommandRunner {
         }
     }
 
+    /**
+     * Runs a command with stdin/stdout/stderr connected straight to the
+     * terminal, so a sudo password prompt or a package manager's own
+     * native confirmation prompt reaches the user directly.
+     */
+    public int runInteractive(List<String> command) {
+        if (dryRun) {
+            System.out.println("[dry-run] " + String.join(" ", command));
+            return 0;
+        }
+        try {
+            return new ProcessBuilder(command).inheritIO().start().waitFor();
+        } catch (IOException e) {
+            throw new CommandExecutionException("Failed to run command: " + command, e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new CommandExecutionException("Interrupted while running command: " + command, e);
+        }
+    }
+
     public record CommandResult(int exitCode, String stdout, String stderr) {
         public boolean isSuccess() {
             return exitCode == 0;
