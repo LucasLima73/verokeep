@@ -2,7 +2,14 @@
 
 CLI open source em Java para migrar seu ambiente Linux entre distros diferentes: captura pacotes instalados manualmente, dotfiles, Flatpaks e repositórios numa distro, e recria tudo em outra — traduzindo nomes de pacotes entre `apt`, `dnf`, `pacman` e `zypper`.
 
-> Status: MVP em construção. Etapa atual: detector de distro + collector de pacotes `apt` + comandos `export`/`restore` (dry-run).
+> Status: MVP em construção.
+> - ✅ Detector de distro + collectors `apt`/`pacman`
+> - ✅ `export`/`restore` (plano/dry-run)
+> - ✅ Collector de dotfiles com exclusão de segurança
+> - ✅ Translator de pacotes via `package-map.yaml`
+> - ✅ Binário nativo (GraalVM) + CI + release automatizado
+> - ⏳ `restore` ainda não aplica as mudanças de verdade (só mostra o plano)
+> - ⏳ GIF de demonstração
 
 ## Por que
 
@@ -15,6 +22,9 @@ verokeep export -o meu-ambiente.yaml           # na distro antiga
 verokeep restore meu-ambiente.yaml --dry-run    # na distro nova, só mostra o plano
 verokeep restore meu-ambiente.yaml              # aplica
 verokeep restore meu-ambiente.yaml --generate-script   # gera script para revisão
+
+verokeep backup --source ~/Projetos --dest /mnt/backup/Projetos          # dry-run (padrão)
+verokeep backup --source ~/Projetos --dest /mnt/backup/Projetos --apply  # aplica de fato (opcional, via rsync)
 ```
 
 ## Build
@@ -25,6 +35,31 @@ Requer Java 21 (há um `.mise.toml` fixando a versão, se você usa [mise](https
 ./gradlew build
 ./gradlew run --args="export -o ambiente.yaml"
 ```
+
+### Binário nativo (GraalVM)
+
+Requer uma distribuição GraalVM (ex: via [mise](https://mise.jdx.dev/) ou [sdkman](https://sdkman.io/)) como JDK ativo:
+
+```bash
+./gradlew nativeCompile
+./build/native/nativeCompile/verokeep export -o ambiente.yaml
+```
+
+A configuração de reflexão/recursos para o `native-image` (Jackson, `package-map.yaml`) está em
+`src/main/resources/META-INF/native-image/`. Ainda não foi validada com um build nativo real — se der
+erro de reflexão em algum tipo, use o [tracing agent](https://www.graalvm.org/latest/reference-manual/native-image/metadata/AutomaticMetadataCollection/)
+do GraalVM para regenerar/ajustar esses arquivos.
+
+### CI/CD
+
+- `.github/workflows/ci.yml` — roda `./gradlew build` (compila + testes) em todo push/PR para `main`.
+- `.github/workflows/release.yml` — builda o binário nativo Linux via GraalVM e publica como asset da
+  GitHub Release, disparado ao empurrar uma tag `v*`:
+
+  ```bash
+  git tag v0.1.0
+  git push origin v0.1.0
+  ```
 
 ## Segurança
 

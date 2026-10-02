@@ -1,0 +1,7 @@
+{
+  "resources": {
+    "includes": [
+      { "pattern": "\\Qpackage-map.yaml\\E" }
+    ]
+  }
+}

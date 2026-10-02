@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("application")
+    id("org.graalvm.buildtools.native") version "0.10.3"
 }
 
 group = "io.verokeep"
@@ -37,4 +38,15 @@ application {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+graalvmNative {
+    binaries {
+        named("main") {
+            imageName.set("verokeep")
+            mainClass.set("io.verokeep.VerokeepApp")
+            buildArgs.add("--no-fallback")
+            buildArgs.add("-H:+ReportExceptionStackTraces")
+        }
+    }
 }
