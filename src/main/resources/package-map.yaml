@@ -1,0 +1,78 @@
+# Canonical package name -> name in each package manager.
+#
+# Add an entry here whenever a package's name differs between distros.
+# A key can be missing for a package manager that doesn't need a special
+# name (the translator then falls back to the original package name
+# unchanged for that manager).
+#
+# The zypper value for "build-tools" is a pattern, not a plain package
+# name (`zypper install -t pattern devel_basis`); the translator only
+# resolves names today, it does not yet build zypper-specific commands.
+#
+# Contributions welcome via PR.
+
+build-tools:
+  apt: build-essential
+  pacman: base-devel
+  dnf: "@development-tools"
+  zypper: "-t pattern devel_basis"
+
+python3-pip:
+  apt: python3-pip
+  pacman: python-pip
+  dnf: python3-pip
+  zypper: python3-pip
+
+python3-venv:
+  apt: python3-venv
+  pacman: python-virtualenv
+  dnf: python3-virtualenv
+  zypper: python3-virtualenv
+
+fd-find:
+  apt: fd-find
+  pacman: fd
+  dnf: fd-find
+  zypper: fd
+
+ripgrep:
+  apt: ripgrep
+  pacman: ripgrep
+  dnf: ripgrep
+  zypper: ripgrep
+
+imagemagick:
+  apt: imagemagick
+  pacman: imagemagick
+  dnf: ImageMagick
+  zypper: ImageMagick
+
+openssh-client:
+  apt: openssh-client
+  pacman: openssh
+  dnf: openssh-clients
+  zypper: openSSH
+
+docker:
+  apt: docker.io
+  pacman: docker
+  dnf: docker-ce
+  zypper: docker
+
+firefox:
+  apt: firefox
+  pacman: firefox
+  dnf: firefox
+  zypper: MozillaFirefox
+
+vscode:
+  apt: code
+  pacman: visual-studio-code-bin
+  dnf: code
+  zypper: code
+
+neovim:
+  apt: neovim
+  pacman: neovim
+  dnf: neovim
+  zypper: neovim

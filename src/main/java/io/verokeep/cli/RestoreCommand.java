@@ -1,7 +1,12 @@
 package io.verokeep.cli;
 
+import io.verokeep.detector.Distro;
+import io.verokeep.detector.DistroDetector;
+import io.verokeep.detector.PackageManager;
 import io.verokeep.profile.Profile;
 import io.verokeep.profile.ProfileReader;
+import io.verokeep.translator.PackageMapLoader;
+import io.verokeep.translator.PackageTranslator;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -24,11 +29,30 @@ public class RestoreCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
         Profile profile = new ProfileReader().read(profilePath);
+        Distro targetDistro = new DistroDetector().detect();
 
-        System.out.println("Source distro: " + profile.source().distro() + " " + profile.source().version());
-        System.out.println("Packages to install (" + profile.packages().size() + "):");
-        for (String pkg : profile.packages()) {
+        PackageManager sourcePm = parsePackageManager(profile.source().packageManager());
+        PackageManager targetPm = targetDistro.packageManager();
+
+        System.out.println("Source distro: " + profile.source().distro() + " " + profile.source().version()
+                + " (" + sourcePm + ")");
+        System.out.println("Target distro: " + targetDistro.id() + " " + targetDistro.version()
+                + " (" + targetPm + ")");
+
+        PackageTranslator translator = new PackageTranslator(new PackageMapLoader().loadDefault());
+        PackageTranslator.TranslationResult translation = translator.translate(profile.packages(), sourcePm, targetPm);
+
+        System.out.println("\nPackages to install (" + translation.packages().size() + "):");
+        for (String pkg : translation.packages()) {
             System.out.println("  - " + pkg);
+        }
+
+        if (!translation.unmapped().isEmpty()) {
+            System.out.println("\nNo mapping found for these packages in package-map.yaml;"
+                    + " keeping the original name as-is (it may not exist on the target distro):");
+            for (String pkg : translation.unmapped()) {
+                System.out.println("  - " + pkg);
+            }
         }
 
         if (dryRun) {
@@ -39,5 +63,16 @@ public class RestoreCommand implements Callable<Integer> {
             System.out.println("\nApplying changes is not implemented yet.");
         }
         return 0;
+    }
+
+    private PackageManager parsePackageManager(String value) {
+        if (value == null) {
+            return PackageManager.UNKNOWN;
+        }
+        try {
+            return PackageManager.valueOf(value.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return PackageManager.UNKNOWN;
+        }
     }
 }

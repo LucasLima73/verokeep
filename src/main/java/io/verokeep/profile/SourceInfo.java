@@ -1,4 +1,4 @@
 package io.verokeep.profile;
 
-public record SourceInfo(String distro, String version) {
+public record SourceInfo(String distro, String version, String packageManager) {
 }

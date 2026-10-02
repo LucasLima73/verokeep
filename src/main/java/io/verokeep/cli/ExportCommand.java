@@ -1,7 +1,9 @@
 package io.verokeep.cli;
 
 import io.verokeep.collector.AptPackageCollector;
+import io.verokeep.collector.Collector;
 import io.verokeep.collector.CollectorResult;
+import io.verokeep.collector.PacmanPackageCollector;
 import io.verokeep.detector.Distro;
 import io.verokeep.detector.DistroDetector;
 import io.verokeep.detector.PackageManager;
@@ -28,7 +30,7 @@ public class ExportCommand implements Callable<Integer> {
         List<String> packages = collectPackages(distro);
 
         Profile profile = new Profile(
-                new SourceInfo(distro.id(), distro.version()),
+                new SourceInfo(distro.id(), distro.version(), distro.packageManager().name().toLowerCase()),
                 packages,
                 List.of(),
                 List.of()
@@ -40,11 +42,18 @@ public class ExportCommand implements Callable<Integer> {
     }
 
     private List<String> collectPackages(Distro distro) {
-        if (distro.packageManager() == PackageManager.APT) {
-            CollectorResult.Packages result = (CollectorResult.Packages) new AptPackageCollector().collect();
-            return result.names();
+        Collector collector = switch (distro.packageManager()) {
+            case APT -> new AptPackageCollector();
+            case PACMAN -> new PacmanPackageCollector();
+            case DNF, ZYPPER, UNKNOWN -> null;
+        };
+
+        if (collector == null) {
+            System.err.println("Package manager " + distro.packageManager() + " is not supported yet.");
+            return List.of();
         }
-        System.err.println("Package manager " + distro.packageManager() + " is not supported yet.");
-        return List.of();
+
+        CollectorResult.Packages result = (CollectorResult.Packages) collector.collect();
+        return result.names();
     }
 }
