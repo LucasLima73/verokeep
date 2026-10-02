@@ -55,6 +55,11 @@ public class RestoreCommand implements Callable<Integer> {
             }
         }
 
+        System.out.println("\nDotfiles to restore (" + profile.dotfiles().size() + "):");
+        for (String dotfile : profile.dotfiles()) {
+            System.out.println("  - " + dotfile);
+        }
+
         if (dryRun) {
             System.out.println("\n[dry-run] No changes were made.");
         } else if (generateScript) {
