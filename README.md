@@ -5,6 +5,10 @@
 <h1 align="center">Verokeep</h1>
 
 <p align="center">
+  <img src="assets/logo.jpg" alt="Verokeep — your environment, any distro" width="480">
+</p>
+
+<p align="center">
   Capture your Linux environment on one distro, recreate it on another — package names and all.
 </p>
 
@@ -28,7 +32,15 @@ names between `apt`, `dnf`, `pacman` and `zypper` along the way.
 > - ✅ Package translator via `package-map.yaml`
 > - ✅ Native binary (GraalVM) + CI + automated releases
 > - ⏳ `restore` doesn't apply changes for real yet (plan/dry-run only)
-> - ⏳ Demo GIF
+
+## Demo
+
+<p align="center">
+  <video src="assets/demo.mp4" controls muted width="720" poster="assets/logo.jpg"></video>
+</p>
+
+> GitHub doesn't always render inline video from markdown right away — if you see a blank box above,
+> grab the clip directly at [`assets/demo.mp4`](assets/demo.mp4).
 
 ## Why
 

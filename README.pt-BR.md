@@ -5,6 +5,10 @@
 <h1 align="center">Verokeep</h1>
 
 <p align="center">
+  <img src="assets/logo.jpg" alt="Verokeep — seu ambiente, qualquer distro" width="480">
+</p>
+
+<p align="center">
   Capture seu ambiente Linux numa distro, recrie em outra — nomes de pacotes e tudo.
 </p>
 
@@ -28,7 +32,15 @@ manualmente, dotfiles, Flatpaks, repositórios — e o recria em outra, traduzin
 > - ✅ Translator de pacotes via `package-map.yaml`
 > - ✅ Binário nativo (GraalVM) + CI + release automatizado
 > - ⏳ `restore` ainda não aplica as mudanças de verdade (só mostra o plano)
-> - ⏳ GIF de demonstração
+
+## Demo
+
+<p align="center">
+  <video src="assets/demo.mp4" controls muted width="720" poster="assets/logo.jpg"></video>
+</p>
+
+> Nem sempre o GitHub renderiza o vídeo inline direto — se aparecer uma caixa em branco acima, pegue o
+> arquivo direto em [`assets/demo.mp4`](assets/demo.mp4).
 
 ## Por que
 
