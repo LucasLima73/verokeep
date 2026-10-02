@@ -1,83 +1,120 @@
-# Verokeep
+<p align="right">
+  <a href="README.pt-BR.md">🇧🇷 Ler em português</a>
+</p>
 
-CLI open source em Java para migrar seu ambiente Linux entre distros diferentes: captura pacotes instalados manualmente, dotfiles, Flatpaks e repositórios numa distro, e recria tudo em outra — traduzindo nomes de pacotes entre `apt`, `dnf`, `pacman` e `zypper`.
+<h1 align="center">Verokeep</h1>
 
-> Status: MVP em construção.
-> - ✅ Detector de distro + collectors `apt`/`pacman`
-> - ✅ `export`/`restore` (plano/dry-run)
-> - ✅ Collector de dotfiles com exclusão de segurança
-> - ✅ Translator de pacotes via `package-map.yaml`
-> - ✅ Binário nativo (GraalVM) + CI + release automatizado
-> - ⏳ `restore` ainda não aplica as mudanças de verdade (só mostra o plano)
-> - ⏳ GIF de demonstração
+<p align="center">
+  Capture your Linux environment on one distro, recreate it on another — package names and all.
+</p>
 
-## Por que
+<p align="center">
+  <a href="https://github.com/LucasLima73/verokeep/actions/workflows/ci.yml"><img src="https://github.com/LucasLima73/verokeep/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/LucasLima73/verokeep/actions/workflows/release.yml"><img src="https://github.com/LucasLima73/verokeep/actions/workflows/release.yml/badge.svg" alt="Release"></a>
+  <img src="https://img.shields.io/badge/Java-21-orange" alt="Java 21">
+  <img src="https://img.shields.io/badge/status-MVP%20in%20progress-yellow" alt="Status">
+</p>
 
-Quem testa distros com frequência precisa reconfigurar tudo do zero a cada formatação. Ferramentas como Ansible, chezmoi, Nix/home-manager, Timeshift e restic resolvem partes do problema, mas são pesadas, têm curva de aprendizado alta ou não traduzem pacotes entre distros. O Verokeep foca em: *troquei de distro, quero meu ambiente de volta em poucos minutos*.
+---
 
-## Uso
+Open-source CLI, written in Java, that captures your user environment on one Linux distro — manually
+installed packages, dotfiles, Flatpaks, repositories — and recreates it on another, translating package
+names between `apt`, `dnf`, `pacman` and `zypper` along the way.
+
+> **Status: MVP in progress**
+> - ✅ Distro detector + `apt`/`pacman` collectors
+> - ✅ `export` / `restore` (plan / dry-run)
+> - ✅ Dotfiles collector with security exclusions
+> - ✅ Package translator via `package-map.yaml`
+> - ✅ Native binary (GraalVM) + CI + automated releases
+> - ⏳ `restore` doesn't apply changes for real yet (plan/dry-run only)
+> - ⏳ Demo GIF
+
+## Why
+
+If you distro-hop often, you know the pain: every fresh install means reconfiguring everything from
+scratch. Tools like Ansible, chezmoi, Nix/home-manager, Timeshift and restic each solve part of the
+problem, but they're heavy, have a steep learning curve, or simply don't translate package names across
+distros. Verokeep is built around one goal: *I switched distros, I want my environment back in a few
+minutes.*
+
+## Usage
 
 ```bash
-verokeep export -o meu-ambiente.yaml           # na distro antiga
-verokeep restore meu-ambiente.yaml --dry-run    # na distro nova, só mostra o plano
-verokeep restore meu-ambiente.yaml              # aplica
-verokeep restore meu-ambiente.yaml --generate-script   # gera script para revisão
+verokeep export -o my-environment.yaml           # on the old distro
+verokeep restore my-environment.yaml --dry-run    # on the new distro, just show the plan
+verokeep restore my-environment.yaml              # apply
+verokeep restore my-environment.yaml --generate-script   # generate a script for review
 
-verokeep backup --source ~/Projetos --dest /mnt/backup/Projetos          # dry-run (padrão)
-verokeep backup --source ~/Projetos --dest /mnt/backup/Projetos --apply  # aplica de fato (opcional, via rsync)
+verokeep backup --source ~/Projects --dest /mnt/backup/Projects          # dry-run (default)
+verokeep backup --source ~/Projects --dest /mnt/backup/Projects --apply  # actually sync (optional, via rsync)
 ```
 
 ## Build
 
-Requer Java 21 (há um `.mise.toml` fixando a versão, se você usa [mise](https://mise.jdx.dev/)).
+Requires Java 21 (a `.mise.toml` pins the version if you use [mise](https://mise.jdx.dev/)).
 
 ```bash
 ./gradlew build
-./gradlew run --args="export -o ambiente.yaml"
+./gradlew run --args="export -o environment.yaml"
 ```
 
-### Binário nativo (GraalVM)
+### Native binary (GraalVM)
 
-Requer uma distribuição GraalVM (ex: via [mise](https://mise.jdx.dev/) ou [sdkman](https://sdkman.io/)) como JDK ativo:
+Requires a GraalVM distribution (e.g. via [mise](https://mise.jdx.dev/) or [sdkman](https://sdkman.io/))
+as the active JDK:
 
 ```bash
 ./gradlew nativeCompile
-./build/native/nativeCompile/verokeep export -o ambiente.yaml
+./build/native/nativeCompile/verokeep export -o environment.yaml
 ```
 
-A configuração de reflexão/recursos para o `native-image` (Jackson, `package-map.yaml`) está em
-`src/main/resources/META-INF/native-image/`. Ainda não foi validada com um build nativo real — se der
-erro de reflexão em algum tipo, use o [tracing agent](https://www.graalvm.org/latest/reference-manual/native-image/metadata/AutomaticMetadataCollection/)
-do GraalVM para regenerar/ajustar esses arquivos.
+Reflection/resource configuration for `native-image` (Jackson, `package-map.yaml`) lives in
+`src/main/resources/META-INF/native-image/`. It hasn't been validated against a real native build yet —
+if you hit a reflection error on some type, use GraalVM's
+[tracing agent](https://www.graalvm.org/latest/reference-manual/native-image/metadata/AutomaticMetadataCollection/)
+to regenerate/adjust those files.
 
 ### CI/CD
 
-- `.github/workflows/ci.yml` — roda `./gradlew build` (compila + testes) em todo push/PR para `main`.
-- `.github/workflows/release.yml` — builda o binário nativo Linux via GraalVM e publica como asset da
-  GitHub Release, disparado ao empurrar uma tag `v*`:
+- `.github/workflows/ci.yml` — runs `./gradlew build` (compile + tests) on every push/PR to `main`.
+- `.github/workflows/release.yml` — builds the native Linux binary via GraalVM and publishes it as a
+  GitHub Release asset, triggered by pushing a `v*` tag:
 
   ```bash
   git tag v0.1.0
   git push origin v0.1.0
   ```
 
-## Segurança
+## Security
 
-- Nunca exporta por padrão `~/.ssh`, `~/.gnupg`, tokens ou credenciais.
-- Nunca executa `sudo` de forma escondida.
-- `--dry-run` é sempre possível antes de qualquer alteração.
+- Never exports `~/.ssh`, `~/.gnupg`, tokens or credentials by default.
+- Never runs `sudo` behind your back.
+- `--dry-run` is always available before any change is made.
 
-## Projetos relacionados
+## Related projects
 
-Nenhuma ferramenta encontrada resolve exatamente este problema (export/restore com tradução de nomes de pacotes entre distros), mas várias resolvem partes dele:
+No tool found solves exactly this problem (export/restore with package name translation across
+distros), but several solve parts of it:
 
-- [Aptik](https://github.com/teejee2008/aptik) e [apt-clone](https://github.com/mvo5/apt-clone) — backup/restore de pacotes, mas apenas dentro da mesma distro, sem tradução de nomes.
-- [chezmoi](https://github.com/twpayne/chezmoi) e [yadm](https://github.com/TheLocehiliosan/yadm) — gerenciamento de dotfiles multi-máquina; referência para o futuro collector de dotfiles do Verokeep.
-- [Nix / home-manager](https://github.com/nix-community/home-manager) — gestão declarativa completa do ambiente do usuário; é o "ideal" mais pesado que o Verokeep tenta evitar.
-- [Timeshift](https://github.com/teejee2008/timeshift) — snapshots/rollback na mesma máquina, não migração entre distros.
-- [winget export/import](https://learn.microsoft.com/windows/package-manager/winget/export) (Windows) — referência de UX para o par `export`/`restore`.
-- [Repology](https://repology.org) — catálogo cross-distro de pacotes; fonte planejada como fallback do `package-map.yaml` (API com rate limit de 1 req/s, ou dumps completos em dumps.repology.org para uso offline).
+- [Aptik](https://github.com/teejee2008/aptik) and [apt-clone](https://github.com/mvo5/apt-clone) —
+  package backup/restore, but only within the same distro, with no name translation.
+- [chezmoi](https://github.com/twpayne/chezmoi) and [yadm](https://github.com/TheLocehiliosan/yadm) —
+  multi-machine dotfile management; a reference for Verokeep's dotfiles collector.
+- [Nix / home-manager](https://github.com/nix-community/home-manager) — full declarative environment
+  management; the heavier "ideal" Verokeep is trying to avoid.
+- [Timeshift](https://github.com/teejee2008/timeshift) — snapshots/rollback on the same machine, not
+  cross-distro migration.
+- [winget export/import](https://learn.microsoft.com/windows/package-manager/winget/export) (Windows) —
+  UX reference for the `export`/`restore` pair.
+- [Repology](https://repology.org) — cross-distro package catalog; planned fallback source for
+  `package-map.yaml` (API rate-limited to 1 req/s, or full dumps at dumps.repology.org for offline use).
 
-## Licença
+## License
 
-A definir.
+To be defined.
+
+## Contributing
+
+Issues and PRs are welcome — especially additions to `src/main/resources/package-map.yaml` for packages
+whose names differ between distros. Commits follow [Conventional Commits](https://www.conventionalcommits.org/).
